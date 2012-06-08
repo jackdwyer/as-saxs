@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
-import sys
+
 import getopt
-import subprocess
 import shutil
+import subprocess
+import sys
 
 
 def main():
