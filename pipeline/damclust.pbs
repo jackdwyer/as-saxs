@@ -1,0 +1,13 @@
+#! /bin/bash
+#PBS -V
+#PBS -N job-damclust
+#PBS -A ASync003
+#PBS -M joanna.huang@synchrotron.org.au -m abe
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=00:15:00
+
+cd $PBS_O_WORKDIR
+
+#---------Clustering------------------#
+# Output: pbdlist.txt
+damclust "$filename"_*-1.pdb -sy=P1

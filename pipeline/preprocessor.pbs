@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#PBS -V
+#PBS -N job-preprocessor
+#PBS -A ASync003
+#PBS -M joanna.huang@synchrotron.org.au -m abe
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=00:20:00
+
+cd $PBS_O_WORKDIR
+
+#---------Preprocessor------------------#
+# to run use qsub:
+#     qsub -v file=FILE preprocessor.pbs
+# where FILE is the full name of file to be used for models
+
+
+python `pwd`/preprocessor.py -f $file
