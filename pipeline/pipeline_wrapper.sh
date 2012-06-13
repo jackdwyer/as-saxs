@@ -20,11 +20,11 @@
 DAT_FILE=$1
 OUTPUT_PATH=$2
 
-FIRST=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH preprocessor.pbs`
+FIRST=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH preprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $FIRST
-SECOND=`qsub -W depend=afterok:$FIRST -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH dammif.pbs`
+SECOND=`qsub -W depend=afterok:$FIRST -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $SECOND
-THIRD=`qsub -W depend=afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH damclust.pbs`
+THIRD=`qsub -W depend=afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $THIRD
 #FOURTH=`qsub -W depend=afterok:$THIRD postprocessor.pbs`
 #echo $FOURTH

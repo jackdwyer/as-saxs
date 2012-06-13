@@ -5,10 +5,8 @@
 #PBS -M joanna.huang@synchrotron.org.au -m abe
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=00:20:00
-#PBS -e $output_path
-#PBS -o $output_path
 
-#cd $PBS_O_WORKDIR
+cd $PBS_O_WORKDIR
 
 #--------- dammif.pbs ------------------#
 # This is a PBS job to run DAMMIF modelling in "interactive" mode on SAS experimental data file specified.
