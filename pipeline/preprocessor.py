@@ -48,9 +48,9 @@ def processDatFile(datfile, output_path):
         skip = skip - 1
     except ValueError:
         print "Error happened when converting skip value into integer."
-    file = datfile.split('/')[-1]
+    file = datfile.split('/')[-1] #example: file="sample.dat" if input file is /input_path/sample.dat
     if file.endswith('.dat'):
-        filename = datfile[:-4] #example: filename="sample" if input file is /input_path/sample.dat
+        filename = file[:-4] #example: filename="sample" if input file is /input_path/sample.dat
     outfile = output_path + filename + '.out'
     process = subprocess.Popen(['datgnom', '-r', str(rg), '-s', str(skip), '-o', outfile, datfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (output, errorOutput) = process.communicate()
@@ -64,7 +64,6 @@ def processDatFile(datfile, output_path):
   
     print '#--------- dammif in slow mode -----#'
     # copy .out file
-    
     dammif_outfile = output_path + filename + "_dammif.out" #example: dammif_outfile="/output_path/sample_dammif.out" if input file is /input_path/sample.dat
     shutil.copyfile(outfile, dammif_outfile)
     # dammif modelling
