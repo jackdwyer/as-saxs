@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #PBS -V
 #PBS -N job-dammif-array
 #PBS -A ASync003
@@ -8,11 +8,15 @@
 
 cd $PBS_O_WORKDIR
 
-#---------DAMMIF------------------#
-# dammif modelling in interactive mode
-# to run use qsub:
-# qsub -v file=FILE dammif.pbs
-# where FILE is the full name of file to be used for models
+#--------- dammif.pbs ------------------#
+# This is a PBS job to run DAMMIF modelling in "interactive" mode on SAS experimental data file specified.
+#
+# To run dammif.pbs using qsub:
+#
+#     qsub -v dat_file=DAT_FILE dammif.pbs
+#
+# where DAT_FILE is the full path of your SAS experimental data file to be used for models.
 
+FILE_PREFIX=${dat_file%.*}
 
-dammif --prefix="$filename"_${PBS_ARRAYID} --mode=interactive --symmetry=P1 --unit=n "$filename"_dammif.out < "$filename"_0.in 
+dammif --prefix="$FILE_PREFIX"_${PBS_ARRAYID} --mode=interactive --symmetry=P1 --unit=n "$FILE_PREFIX"_dammif.out < "$FILE_PREFIX"_0.in 

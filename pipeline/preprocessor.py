@@ -17,10 +17,15 @@ def main():
         print str(err) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
-        
+
+    # get datfile option, example: -f /full/path/to/sample.dat        
     for o, a in opts:
         if o in ("-f", "--file"):
-            datfile = a
+            datfile = str(a)
+
+    if not datfile.endswith('.dat'):
+        print "ERROR: *.dat file is expected as input file."
+        sys.exit(2)
 
     processDatFile(datfile)
 
@@ -28,12 +33,11 @@ def main():
 def processDatFile(datfile):
   
     print '#--------- autorg ------------------#'
-    
-    process = subprocess.Popen(['autorg', '-f', 'ssv', str(datfile)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output,errorOutput = process.communicate()
+    process = subprocess.Popen(['autorg', '-f', 'ssv', datfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (output, errorOutput) = process.communicate()
     print output
         
-    print '#--------- datgnom -----------------#'     
+    print '#--------- datgnom -----------------#'    
     valuePoints = output.split(" ")
     rg = valuePoints[0]
     skip = valuePoints[4]
@@ -42,28 +46,28 @@ def processDatFile(datfile):
         skip = skip - 1
     except ValueError:
         print "Error happened when converting skip value into integer."
-    process = subprocess.Popen(['datgnom', '-r', str(rg), '-s', str(skip), str(datfile)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output,errorOutput = process.communicate()
+    outfile = datfile.replace('.dat', '.out')
+    process = subprocess.Popen(['datgnom', '-r', str(rg), '-s', str(skip), '-o', outfile, datfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (output, errorOutput) = process.communicate()
     # Output file: gnom .out file
     print output
       
     print '#--------- datporod ----------------#' 
-    filename = datfile.split(".")[0]
-    outfile = str(filename) + ".out"
     process = subprocess.Popen(['datporod', outfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output,errorOutput = process.communicate()
+    (output, errorOutput) = process.communicate()
     print output
   
-    print '#--------- dammif_slow -------------#'
-    # dammif modelling in slow mode
-    # duplicate .out file
-    dammif_outfile = str(filename) + "_dammif.out" #example: sample_dammif.out
+    print '#--------- dammif in slow mode -----#'
+    # copy .out file
+    if datfile.endswith('.dat'):
+        filename = datfile[:-4] #example: filename = "/path/sample" if input file is /path/sample.dat
+    dammif_outfile = str(filename) + "_dammif.out" #example: dammif_outfile = "/path/sample_dammif.out" if input file is /path/sample.dat
     shutil.copyfile(outfile, dammif_outfile)
-    # dammif 
-    dammif_slow_outfile_prefix = str(filename) + "_0" #example: sample_0
+    # dammif modelling
+    dammif_slow_outfile_prefix = str(filename) + "_0" #example: dammif_slow_outfile_prefix = "/path/sample_0" if input file is /path/sample.dat
     process = subprocess.Popen(['dammif', '--prefix=%s' % dammif_slow_outfile_prefix, '--mode=slow', '--symmetry=P1', '--unit=n', dammif_outfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output,errorOutput = process.communicate()
-    # remove random seed line from .in file, example: sample_0.in
+    (output, errorOutput) = process.communicate()
+    # remove random seed line from "/path/sample_0.in" output file if input file is /path/sample.dat
     dammif_slow_infile = '%s.in' % dammif_slow_outfile_prefix
     lines = open(dammif_slow_infile, 'r').readlines()
     new_lines = []

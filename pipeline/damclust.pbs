@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #PBS -V
 #PBS -N job-damclust
 #PBS -A ASync003
@@ -8,6 +8,23 @@
 
 cd $PBS_O_WORKDIR
 
-#---------Clustering------------------#
-# Output: pbdlist.txt
-damclust "$filename"_*-1.pdb -sy=P1
+#--------- damclust.pbs ------------------#
+# This is a PBS job to run DAMCLUST modelling on all '-1.pdb' files which represent the modelled particle.
+#
+# Input file: 
+#
+#     1. The SAS experimental data files (*.dat) in ASCII format.
+#
+# Output file: 
+#
+#     1. pbdlist.txt
+#
+# To run damclust.pbs using qsub:
+#
+#     qsub -v dat_file=DAT_FILE damclust.pbs
+#
+# where DAT_FILE is the full path of your SAS experimental data file to be used for models.
+
+FILE_PREFIX=${dat_file%.*}
+
+damclust "$FILE_PREFIX"_*-1.pdb -sy=P1
