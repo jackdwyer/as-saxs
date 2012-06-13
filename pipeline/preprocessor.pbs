@@ -6,7 +6,7 @@
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=00:20:00
 
-cd $PBS_O_WORKDIR
+#cd $PBS_O_WORKDIR
 
 #--------- preprocessor.pbs ------------------#
 # This is a PBS job to run the following models in order on SAS experimental data file specified,
@@ -39,4 +39,4 @@ cd $PBS_O_WORKDIR
 # where DAT_FILE is the full path of your SAS experimental data file to be used for models.
 
 
-python `pwd`/preprocessor.py -f $dat_file
+python /home/saxswaxs/ASync011/as-saxs/pipeline/preprocessor.py -f $dat_file -o $output_path

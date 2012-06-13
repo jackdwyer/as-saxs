@@ -6,7 +6,7 @@
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=00:15:00
 
-cd $PBS_O_WORKDIR
+#cd $PBS_O_WORKDIR
 
 #--------- damclust.pbs ------------------#
 # This is a PBS job to run DAMCLUST modelling on all '-1.pdb' files which represent the modelled particle.
@@ -25,6 +25,10 @@ cd $PBS_O_WORKDIR
 #
 # where DAT_FILE is the full path of your SAS experimental data file to be used for models.
 
-FILE_PREFIX=${dat_file%.*}
+INPUT_FILE_FULL_PATH=$dat_file
+OUTPUT_PATH=$output_path
+DAT_FILE=${INPUT_FILE_FULL_PATH##*/}
+DAT_FILE_NAME=${DAT_FILE%.*}
+OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
 
-damclust "$FILE_PREFIX"_*-1.pdb -sy=P1
+damclust "$OUTPUT_FILE_PREFIX"_*-1.pdb -sy=P1

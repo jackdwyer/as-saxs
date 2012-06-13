@@ -6,7 +6,7 @@
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=00:20:00
 
-cd $PBS_O_WORKDIR
+#cd $PBS_O_WORKDIR
 
 #--------- dammif.pbs ------------------#
 # This is a PBS job to run DAMMIF modelling in "interactive" mode on SAS experimental data file specified.
@@ -17,6 +17,10 @@ cd $PBS_O_WORKDIR
 #
 # where DAT_FILE is the full path of your SAS experimental data file to be used for models.
 
-FILE_PREFIX=${dat_file%.*}
+INPUT_FILE_FULL_PATH=$dat_file
+OUTPUT_PATH=$output_path
+DAT_FILE=${INPUT_FILE_FULL_PATH##*/}
+DAT_FILE_NAME=${DAT_FILE%.*}
+OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
 
-dammif --prefix="$FILE_PREFIX"_${PBS_ARRAYID} --mode=interactive --symmetry=P1 --unit=n "$FILE_PREFIX"_dammif.out < "$FILE_PREFIX"_0.in 
+dammif --prefix="$OUTPUT_FILE_PREFIX"_${PBS_ARRAYID} --mode=interactive --symmetry=P1 --unit=n "$OUTPUT_FILE_PREFIX"_dammif.out < "$OUTPUT_FILE_PREFIX"_0.in 
