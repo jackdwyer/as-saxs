@@ -6,7 +6,7 @@
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=00:15:00
 
-cd $PBS_O_WORKDIR
+#cd $PBS_O_WORKDIR
 
 #--------- damclust.pbs ------------------#
 # This is a PBS job to run DAMCLUST modelling on all '-1.pdb' files which represent the modelled particle.
@@ -31,4 +31,10 @@ DAT_FILE=${INPUT_FILE_FULL_PATH##*/}
 DAT_FILE_NAME=${DAT_FILE%.*}
 OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
 
-damclust "$OUTPUT_FILE_PREFIX"_*-1.pdb -sy=P1
+# damclust command has 64 characters limit on the length of file path to the input files (*.pdb).
+# can't specify long full file path on damclust command, it will raise file or directory not 
+# found error if the length of file path exceed 64 characters.
+# Change directory first as a quick workaround.
+
+cd $output_path
+damclust "$DAT_FILE_NAME"_*-1.pdb -sy=P1
