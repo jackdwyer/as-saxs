@@ -1,0 +1,43 @@
+#!/bin/bash
+#PBS -V
+#PBS -N job-postprocessor
+#PBS -A ASync011
+#PBS -M joanna.huang@synchrotron.org.au -m abe
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=00:15:00
+
+#--------- postprocessor.pbs --------------------------------------------------#
+# This is a PBS job to copy pipeline output files (*-1.pdb) back to remote saxs 
+# production server and trigger remote pipeline_harvest script off to extract 
+# required values from output files and store them into database.
+# 
+# To run postprocessor.pbs using qsub:
+#
+#     qsub -v dat_file=DAT_FILE,output_path=OUTPUT_PATH,prod_scp_dest=SCP_DEST,prod_ssh_access=PROD_SSH,prod_pipeline_harvest=PIPELINE_HARVEST damclust.pbs
+#
+# where 
+#
+#     DAT_FILE          is a full path of your SAS experimental data file to be 
+#                       used for models.
+#     OUTPUT_PATH       is a full directory path for all output files generated 
+#                       during pipeline modelling. 
+#     SCP_DEST          is a remote full path to copy all pipeline output files
+#                       (*-1.pdb) back to remote SAXS production server. 
+#     PIPELINE_HARVEST  is a remote full path to trigger remote pipeline_harvest 
+#                       script off for extracting required values from pipeline 
+#                       output files and store them into database.
+
+INPUT_FILE_FULL_PATH=$dat_file
+OUTPUT_PATH=$output_path
+DAT_FILE=${INPUT_FILE_FULL_PATH##*/}
+DAT_FILE_NAME=${DAT_FILE%.*}
+OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
+
+
+$harvest_script
+
+# copy pipeline output files back to SAXS production server.
+scp "$OUTPUT_FILE_PREFIX"_*-1.pdb "$prod_scp_dest"
+
+# run pipeline_harvest script remotely
+ssh "$prod_ssh_access" bash "$prod_pipeline_harvest" 

@@ -4,28 +4,55 @@
 #
 # Usage:
 # 
-#     $ ./pipeline_wrapper.sh DAT_FILE OUTPUT_PATH
+#     $ ./pipeline_wrapper.sh DAT_FILE OUTPUT_PATH PROD_SCP_DEST
 # 
 # DAT_FILE:
 #
-#     It is the full path of your SAS experimental data file to be used for models.
+#     It is a full path of your SAS experimental data file to be used for models.
 #     example: /home/saxswaxs/ASync011_scratch/pipeline_data/test_user_epn/test_experiment/avg/sample.dat
 #
 # OUTPUT_PATH: 
 #
-#     It is the full directory path for all output files generated during pipeline modelling. 
+#     It is a full directory path for all output files generated during pipeline modelling. 
 #     example:/home/saxswaxs/ASync011_scratch/pipeline_data/test_user_epn/test_experiment/analysis
+#
+# PROD_SCP_DEST:
+#
+#     It is a remote full directory path for this pipeline script to copy output files back to remote SAXS production server.
+#     example: saxs_user@saxs_production.synchrotron.org.au:/production/data/test_user_epn/test_experiment/analysis
+#
+# PROD_SSH_ACCESS:
+#
+#     It is a string to ssh access remote SAXS production server.
+#     example: saxs_user@saxs_production.synchrotron.org.au
+#
+# PROD_PIPELINE_HARVEST:
+#
+#     It is a remote full path to trigger pipeline harvest script on remote SAXS production server.
+#     example: saxs_user@saxs_production.synchrotron.org.au:/production/data/test_user_epn/test_experiment/analysis
 #
 
 DAT_FILE=$1
 OUTPUT_PATH=$2
+PROD_SCP_DEST=$3
+PROD_SSH_ACCESS=$4
+PROD_PIPELINE_HARVEST=$5
 
+# autorg, datgnom, datporod,dammif in slow mode with 1 round
 FIRST=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH preprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $FIRST
+
+# dammif in interactive mode with 9 rounds in parallel
 SECOND=`qsub -W depend=afterok:$FIRST -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $SECOND
+
+# damclust 
 THIRD=`qsub -W depend=afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $THIRD
-#FOURTH=`qsub -W depend=afterok:$THIRD postprocessor.pbs`
-#echo $FOURTH
+
+# copy pipeline output files (*-1.pdb) back to remote saxs production server 
+# and trigger remote pipeline_harvest script off to extract required values from pipeline output files and store them into database.
+FOURTH=`qsub -W depend=afterok:$THIRD -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH,prod_scp_dest=$PROD_SCP_DEST,prod_ssh_access=$PROD_SSH_ACCESS,prod_pipeline_harvest=$PROD_PIPELINE_HARVEST postprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+echo $FOURTH
+
 exit 0

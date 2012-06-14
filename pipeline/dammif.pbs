@@ -8,14 +8,20 @@
 
 cd $PBS_O_WORKDIR
 
-#--------- dammif.pbs ------------------#
-# This is a PBS job to run DAMMIF modelling in "interactive" mode on SAS experimental data file specified.
+#--------- dammif.pbs ---------------------------------------------------------#
+# This is a PBS job to run DAMMIF modelling in "interactive" mode on SAS 
+# experimental data file specified.
 #
 # To run dammif.pbs using qsub:
 #
-#     qsub -v dat_file=DAT_FILE dammif.pbs
+#     qsub -v dat_file=DAT_FILE,output_path=OUTPUT_PATH dammif.pbs
 #
-# where DAT_FILE is the full path of your SAS experimental data file to be used for models.
+# where 
+#
+#     DAT_FILE      is a full path of your SAS experimental data file to be used 
+#                   for models.
+#     OUTPUT_PATH   is a full directory path for all output files generated 
+#                   during pipeline modelling. 
 
 INPUT_FILE_FULL_PATH=$dat_file
 OUTPUT_PATH=$output_path

@@ -8,8 +8,9 @@
 
 #cd $PBS_O_WORKDIR
 
-#--------- damclust.pbs ------------------#
-# This is a PBS job to run DAMCLUST modelling on all '-1.pdb' files which represent the modelled particle.
+#--------- damclust.pbs -------------------------------------------------------#
+# This is a PBS job to run DAMCLUST modelling on all '*-1.pdb' files which 
+# represent the modelled particle.
 #
 # Input file: 
 #
@@ -21,9 +22,14 @@
 #
 # To run damclust.pbs using qsub:
 #
-#     qsub -v dat_file=DAT_FILE damclust.pbs
+#     qsub -v dat_file=DAT_FILE,output_path=OUTPUT_PATH damclust.pbs
 #
-# where DAT_FILE is the full path of your SAS experimental data file to be used for models.
+# where 
+#
+#     DAT_FILE      is a full path of your SAS experimental data file to be used 
+#                   for models.
+#     OUTPUT_PATH   is a full directory path for all output files generated 
+#                   during pipeline modelling. 
 
 INPUT_FILE_FULL_PATH=$dat_file
 OUTPUT_PATH=$output_path
@@ -31,10 +37,10 @@ DAT_FILE=${INPUT_FILE_FULL_PATH##*/}
 DAT_FILE_NAME=${DAT_FILE%.*}
 OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
 
-# damclust command has 64 characters limit on the length of file path to the input files (*.pdb).
-# can't specify long full file path on damclust command, it will raise file or directory not 
-# found error if the length of file path exceed 64 characters.
-# Change directory first as a quick workaround.
+# damclust command has 64 characters limit on the length of file path to the 
+# input files (*.pdb). Can't specify long full file path on damclust command, it 
+# will raise file or directory not found error if the length of file path exceed 
+# 64 characters. Change directory first as a quick workaround.
 
 cd $output_path
 damclust "$DAT_FILE_NAME"_*-1.pdb -sy=P1
