@@ -43,4 +43,4 @@ OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
 # 64 characters. Change directory first as a quick workaround.
 
 cd $output_path
-damclust "$DAT_FILE_NAME"_*-1.pdb -sy=P1
+#damclust "$DAT_FILE_NAME"_*-1.pdb -sy=P1
