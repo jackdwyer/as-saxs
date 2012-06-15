@@ -37,22 +37,23 @@ OUTPUT_PATH=$2
 PROD_SSH_ACCESS=$3
 PROD_SCP_DEST=$4
 PROD_PIPELINE_HARVEST=$5
+PIPELINE_SOURCE_CODE_HOME=/gpfs/M1Home/projects/ASync011/as-saxs/pipeline
 
 # autorg, datgnom, datporod,dammif in slow mode with 1 round
-FIRST=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH preprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+FIRST=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/preprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $FIRST
 
 # dammif in interactive mode with 9 rounds in parallel
-SECOND=`qsub -W depend=afterok:$FIRST -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+SECOND=`qsub -W depend=afterok:$FIRST -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $SECOND
 
 # damclust 
-THIRD=`qsub -W depend=afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+THIRD=`qsub -W depend=afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $THIRD
 
 # copy pipeline output files (*-1.pdb) back to remote saxs production server 
 # and trigger remote pipeline_harvest script off to extract required values from pipeline output files and store them into database.
-FOURTH=`qsub -W depend=afterok:$THIRD -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH,prod_ssh_access=$PROD_SSH_ACCESS,prod_scp_dest=$PROD_SCP_DEST,prod_pipeline_harvest=$PROD_PIPELINE_HARVEST postprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+FOURTH=`qsub -W depend=afterok:$THIRD -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH,prod_ssh_access=$PROD_SSH_ACCESS,prod_scp_dest=$PROD_SCP_DEST,prod_pipeline_harvest=$PROD_PIPELINE_HARVEST $PIPELINE_SOURCE_CODE_HOME/postprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $FOURTH
 
 exit 0
