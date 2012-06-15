@@ -36,13 +36,16 @@ PIPELINE_USER_OUTPUT_DIR="$PIPELINE_USER_EXP_DIR"/"$PIPELINE_OUTPUT_DIR"
 
 #---------- Create user's directories -----------------------------------------#
 # create user pipeline input directory
+echo "#---- Create user pipeline input directory"
 ssh "$MASSIVE_USER"@"$MASSIVE_HOST" mkdir -p "$PIPELINE_USER_INPUT_DIR"
 
 # create user pipeline output directory
+echo "#---- Create user pipeline output directory"
 ssh "$MASSIVE_USER"@"$MASSIVE_HOST" mkdir -p "$PIPELINE_USER_OUTPUT_DIR"
 
-#---------- Cope user's experimental data file --------------------------------#
-# Copy a local data file on production to a remote massive host 
+#---------- Copy user's experimental data file --------------------------------#
+# Copy a local data file on production to a remote massive host
+echo "#---- Copy user's dat file to remote massive cluster" 
 scp "$PROD_PIPELINE_SCP_FROM"/"$PROD_USER_DAT_FILE" "$MASSIVE_USER"@"$MASSIVE_HOST":"$PIPELINE_USER_INPUT_DIR"/"$PROD_USER_DAT_FILE"
 
 #---------- Pipeline modelling ------------------------------------------------#
@@ -64,4 +67,10 @@ ARG3="$PROD_SSH_ACCESS"
 ARG4="$PROD_PIPELINE_SCP_DEST"
 ARG5="$PROD_PIPELINE_HARVEST_PATH"
 
+echo "#---- Start pipeline analysis"
+echo "$ARG1"
+echo "$ARG2"
+echo "$ARG3"
+echo "$ARG4"
+echo "$ARG5"
 ssh "$MASSIVE_USER"@"$MASSIVE_HOST" bash "$PIPELINE_SOURCE_CODE_HOME"/"$PIPELINE_WRAPPER" "$ARG1" "$ARG2" "$ARG3" "$ARG4" "$ARG5"
