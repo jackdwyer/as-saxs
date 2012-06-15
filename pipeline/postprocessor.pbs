@@ -13,17 +13,19 @@
 # 
 # To run postprocessor.pbs using qsub:
 #
-#     qsub -v dat_file=DAT_FILE,output_path=OUTPUT_PATH,prod_scp_dest=SCP_DEST,prod_ssh_access=PROD_SSH,prod_pipeline_harvest=PIPELINE_HARVEST damclust.pbs
+#     qsub -v dat_file=DAT_FILE,output_path=OUTPUT_PATH,prod_ssh_access=PROD_SSH,prod_scp_dest=SCP_DEST,prod_pipeline_harvest=PIPELINE_HARVEST postprocessor.pbs
 #
 # where 
 #
-#     DAT_FILE          is a full path of your SAS experimental data file to be 
+#     DAT_FILE          A full path of your SAS experimental data file to be 
 #                       used for models.
-#     OUTPUT_PATH       is a full directory path for all output files generated 
+#     OUTPUT_PATH       A full directory path for all output files generated 
 #                       during pipeline modelling. 
-#     SCP_DEST          is a remote full path to copy all pipeline output files
+#     PROD_SSH          A string of ssh username and remote hostname used to 
+#                       connect to SAXS production server.
+#     SCP_DEST          A remote full path to copy all pipeline output files
 #                       (*-1.pdb) back to remote SAXS production server. 
-#     PIPELINE_HARVEST  is a remote full path to trigger remote pipeline_harvest 
+#     PIPELINE_HARVEST  A remote full path to trigger remote pipeline_harvest 
 #                       script off for extracting required values from pipeline 
 #                       output files and store them into database.
 
@@ -33,11 +35,19 @@ DAT_FILE=${INPUT_FILE_FULL_PATH##*/}
 DAT_FILE_NAME=${DAT_FILE%.*}
 OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
 
-
-$harvest_script
-
 # copy pipeline output files back to SAXS production server.
-scp "$OUTPUT_FILE_PREFIX"_*-1.pdb "$prod_scp_dest"
+scp "$OUTPUT_FILE_PREFIX"_*-1.pdb "$prod_ssh_access":"$prod_scp_dest"
 
 # run pipeline_harvest script remotely
-ssh "$prod_ssh_access" bash "$prod_pipeline_harvest" 
+# Arguments for pipeline harvest:
+#   ARG1: A full path of user's experimental data file to be used for models.
+#   ARG2: A full directory path for all output files generated during pipeline 
+#         modelling.
+#   ARG3: A string of ssh username and remote hostname used to connect to SAXS 
+#         production server, ex. username@hostname.
+#   ARG4: A remote full directory path for pipeline to copy output files back to 
+#         remote SAXS production server.
+#   ARG5: A remote full path to trigger pipeline harvest script on remote SAXS 
+#         production server.
+
+#ssh "$prod_ssh_access" bash "$prod_pipeline_harvest" 

@@ -13,8 +13,8 @@ PROD_USER_EXP=joannah_exp
 PROD_USER_DAT_FILE=sample.dat
 PROD_PIPELINE_OUTPUT_DIR=analysis
 
-PROD_PIPELINE_SCP_DEST="$PROD_USER"@"$PROD_HOST":"$PROD_DATA_HOME"/"$PROD_USER_EPN"/"$PROD_USER_EXP"/"$PROD_PIPELINE_OUTPUT_DIR"/
 PROD_SSH_ACCESS="$PROD_USER"@"$PROD_HOST"
+PROD_PIPELINE_SCP_DEST="$PROD_DATA_HOME"/"$PROD_USER_EPN"/"$PROD_USER_EXP"/"$PROD_PIPELINE_OUTPUT_DIR"/
 PROD_PIPELINE_HARVEST_PATH="$PROD_SOURCE_CODE_HOME"/"$PROD_PIPELINE_HARVEST"
 
 #---------- Pipeline settings -------------------------------------------------#
@@ -46,9 +46,20 @@ scp "$PROD_USER_DAT_FILE" "$MASSIVE_USER"@"$MASSIVE_HOST":"$PIPELINE_USER_INPUT_
 #---------- Pipeline modelling ------------------------------------------------#
 # Submit pipeline process jobs on to massive cluster
 # Arguments for pipeline wrapper:
-#   1. A full path of user's experimental data file to be used for models.
-#   2. A full directory path for all output files generated during pipeline 
-#      modelling.
-#   3. A remote full directory path for pipeline to copy output files back to 
-#      remote SAXS production server.
-ssh "$MASSIVE_USER"@"$MASSIVE_HOST" bash "$PIPELINE_SOURCE_CODE_HOME"/"$PIPELINE_WRAPPER" "$PIPELINE_USER_INPUT_DIR"/"$PROD_USER_DAT_FILE" "$PIPELINE_USER_OUTPUT_DIR" "$PROD_SSH_ACCESS" "$PROD_PIPELINE_SCP_DEST" "$PROD_PIPELINE_HARVEST_PATH"
+#   ARG1: A full path of user's experimental data file to be used for models.
+#   ARG2: A full directory path for all output files generated during pipeline 
+#         modelling.
+#   ARG3: A string of ssh username and remote hostname used to connect to SAXS 
+#         production server, ex. username@hostname.
+#   ARG4: A remote full directory path for pipeline to copy output files back to 
+#         remote SAXS production server.
+#   ARG5: A remote full path to trigger pipeline harvest script on remote SAXS 
+#         production server.
+
+ARG1="$PIPELINE_USER_INPUT_DIR"/"$PROD_USER_DAT_FILE"
+ARG2="$PIPELINE_USER_OUTPUT_DIR"
+ARG3="$PROD_SSH_ACCESS"
+ARG4="$PROD_PIPELINE_SCP_DEST"
+ARG5="$PROD_PIPELINE_HARVEST_PATH"
+
+ssh "$MASSIVE_USER"@"$MASSIVE_HOST" bash "$PIPELINE_SOURCE_CODE_HOME"/"$PIPELINE_WRAPPER" "$ARG1" "$ARG2" "$ARG3" "$ARG4" "$ARG5"
