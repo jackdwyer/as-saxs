@@ -45,4 +45,4 @@ scp "$OUTPUT_FILE_PREFIX"_*-1.pdb "$prod_ssh_access":"$prod_scp_dest"/
 
 ARG1="$prod_scp_dest"/"$DAT_FILE_NAME"
 
-ssh "$prod_ssh_access" python "$prod_pipeline_harvest" "$ARG1"
+ssh "$prod_ssh_access" python "$prod_pipeline_harvest" -p "$ARG1"
