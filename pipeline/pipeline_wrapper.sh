@@ -43,12 +43,16 @@ PIPELINE_SOURCE_CODE_HOME=/gpfs/M1Home/projects/ASync011/as-saxs/pipeline
 FIRST=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/preprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $FIRST
 
+# process input parameters 
+INPUT_PARAMETERS=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/input_parameters.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+echo INPUT_PARAMETERS
+
 # dammif in interactive mode with 9 rounds in parallel
-SECOND=`qsub -W depend=afterok:$FIRST -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+SECOND=`qsub -W depend=afterok:$INPUT_PARAMETERS -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $SECOND
 
 # damclust 
-THIRD=`qsub -W depend=afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+THIRD=`qsub -W depend=afterok:$FIRST,afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $THIRD
 
 # copy pipeline output files (*-1.pdb) back to remote saxs production server 
