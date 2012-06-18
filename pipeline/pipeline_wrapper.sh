@@ -45,7 +45,7 @@ echo $FIRST
 
 # process input parameters 
 INPUT_PARAMETERS=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/input_parameters.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
-echo INPUT_PARAMETERS
+echo $INPUT_PARAMETERS
 
 # dammif in interactive mode with 9 rounds in parallel
 SECOND=`qsub -W depend=afterok:$INPUT_PARAMETERS -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
