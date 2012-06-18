@@ -36,18 +36,13 @@ DAT_FILE_NAME=${DAT_FILE%.*}
 OUTPUT_FILE_PREFIX="$OUTPUT_PATH""$DAT_FILE_NAME"
 
 # copy pipeline output files back to SAXS production server.
-scp "$OUTPUT_FILE_PREFIX"_*-1.pdb "$prod_ssh_access":"$prod_scp_dest"
+scp "$OUTPUT_FILE_PREFIX"_*-1.pdb "$prod_ssh_access":"$prod_scp_dest"/
 
 # run pipeline_harvest script remotely
 # Arguments for pipeline harvest:
-#   ARG1: A full path of user's experimental data file to be used for models.
-#   ARG2: A full directory path for all output files generated during pipeline 
-#         modelling.
-#   ARG3: A string of ssh username and remote hostname used to connect to SAXS 
-#         production server, ex. username@hostname.
-#   ARG4: A remote full directory path for pipeline to copy output files back to 
-#         remote SAXS production server.
-#   ARG5: A remote full path to trigger pipeline harvest script on remote SAXS 
-#         production server.
+#   ARG1: Prefix to prepend to output filenames (*-1.pdb). Should include  
+#         absolute paths, all directory components must exist.
 
-#ssh "$prod_ssh_access" bash "$prod_pipeline_harvest" 
+ARG1="$prod_scp_dest"/"$DAT_FILE_NAME"
+
+ssh "$prod_ssh_access" python "$prod_pipeline_harvest" "$ARG1"

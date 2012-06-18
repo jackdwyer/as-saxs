@@ -28,6 +28,9 @@ def main():
     if not datfile.endswith('.dat'):
         print "ERROR: *.dat file is expected as input file."
         sys.exit(2)
+        
+    if not output_path.endswith('/'):
+        output_path += '/'
 
     processDatFile(datfile, output_path)
 
