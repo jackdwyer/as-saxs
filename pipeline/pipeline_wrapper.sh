@@ -40,24 +40,24 @@ PROD_PIPELINE_HARVEST=$5
 PIPELINE_SOURCE_CODE_HOME=/gpfs/M1Home/projects/ASync011/as-saxs/pipeline
 
 # autorg, datgnom, datporod,dammif in slow mode with 1 round
-FIRST=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/preprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
-echo $FIRST
+PRE_PROCESSOR=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/preprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+echo $PRE_PROCESSOR
 
 # process input parameters 
 INPUT_PARAMETERS=`qsub -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/input_parameters.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
 echo $INPUT_PARAMETERS
 
 # dammif in interactive mode with 9 rounds in parallel
-SECOND=`qsub -W depend=afterok:$INPUT_PARAMETERS -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
-echo $SECOND
+DAMMIF=`qsub -W depend=afterok:$INPUT_PARAMETERS -t 1-9 -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/dammif.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+echo $DAMMIF
 
 # damclust 
-THIRD=`qsub -W depend=afterok:$FIRST,afterokarray:$SECOND -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
-echo $THIRD
+DAMCLUST=`qsub -W depend=afterok:$PRE_PROCESSOR,afterokarray:$DAMMIF -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH $PIPELINE_SOURCE_CODE_HOME/damclust.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+echo $DAMCLUST
 
 # copy pipeline output files (*-1.pdb) back to remote saxs production server 
 # and trigger remote pipeline_harvest script off to extract required values from pipeline output files and store them into database.
-FOURTH=`qsub -W depend=afterok:$THIRD -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH,prod_ssh_access=$PROD_SSH_ACCESS,prod_scp_dest=$PROD_SCP_DEST,prod_pipeline_harvest=$PROD_PIPELINE_HARVEST $PIPELINE_SOURCE_CODE_HOME/postprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
-echo $FOURTH
+POST_PROCESSOR=`qsub -W depend=afterok:$DAMCLUST -v dat_file=$DAT_FILE,output_path=$OUTPUT_PATH,prod_ssh_access=$PROD_SSH_ACCESS,prod_scp_dest=$PROD_SCP_DEST,prod_pipeline_harvest=$PROD_PIPELINE_HARVEST $PIPELINE_SOURCE_CODE_HOME/postprocessor.pbs -e $OUTPUT_PATH -o $OUTPUT_PATH`
+echo $POST_PROCESSOR
 
 exit 0
