@@ -3,6 +3,7 @@
 import getopt
 import glob
 import sys
+import zmq
 
 def main():
     prefix = ""
@@ -38,6 +39,15 @@ def harvestPDBFile(prefix):
                 outfile.write(value)
                 outfile.close()
                 # save value to database
+
+                #To send data to the database, something like this is required.
+                #Where values reside in the database, and the connection string need to be finalised
+                context = zmq.Context()
+                pub = context.socket(zmq.PUB)
+                pub.connect("tcp://127.0.0.1:1998")
+                pub.send_pyobj({"command":"insert_DAM", "value":value})
+                pub.close()
+                
                 
                 break
         pdbfile.close()
