@@ -28,11 +28,8 @@ def main():
     if not infile.endswith('.in'):
         print "ERROR: *.dat file is expected as input file."
         sys.exit(2)
-        
-    if not output_path.endswith('/'):
-        output_path += '/'
 
-    processDatFile(infile, output_path)
+    processDatFile(infile)
 
 
 def processDatFile(infile):
